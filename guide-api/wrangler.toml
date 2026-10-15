@@ -1,0 +1,7 @@
+name = "guide-api"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+
+routes = [
+  { pattern = "qqzttkx.eu.cc/api/*", zone_name = "qqzttkx.eu.cc" }
+]
