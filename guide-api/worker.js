@@ -13,23 +13,6 @@ async function fetchJSON(url, referer) {
 export default {
   async fetch(request) {
     const url = new URL(request.url);
-    if (url.pathname === '/api/bg') {
-      // 背景图：从 R2 独立存储随机取一张返回（CF 内部毫秒级，无第三方依赖）
-      try {
-        const objects = await env.bg_images.list();
-        if (!objects.objects.length) throw new Error('empty bg bucket');
-        const key = objects.objects[Math.floor(Math.random() * objects.objects.length)].key;
-        const obj = await env.bg_images.get(key);
-        if (!obj) throw new Error('bg missing');
-        const headers = new Headers();
-        headers.set('Content-Type', (obj.httpMetadata && obj.httpMetadata.contentType) || 'image/webp');
-        headers.set('Access-Control-Allow-Origin', '*');
-        headers.set('Cache-Control', 'no-store');
-        return new Response(obj.body, { status: 200, headers });
-      } catch (e) {
-        return Response.redirect('https://picsum.photos/1920/1080', 302);
-      }
-    }
     if (request.method !== 'GET' || url.pathname !== '/api/playlist') {
       return new Response(JSON.stringify({ code: 404, msg: 'not found', data: [] }), {
         headers: { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' }

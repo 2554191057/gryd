@@ -671,8 +671,9 @@
             if (q) q.textContent = QUOTES[Math.floor(Math.random() * QUOTES.length)];
         })();
         
-        // ========== 背景图双图层切换（自建 R2 独立存储接口随机取图） ==========
+        // ========== 背景图双图层切换 ==========
         (function() {
+            const API_BASE = "https://t.mwm.moe/pc";
             const layer1 = document.getElementById('bgLayer1');
             const layer2 = document.getElementById('bgLayer2');
             
@@ -683,7 +684,7 @@
             let intervalId = null;
             
             function buildUrl() {
-                return "https://qqzttkx.eu.cc/api/bg?_t=" + Date.now();
+                return API_BASE + "?_t=" + Date.now() + "&_rand=" + Math.random().toString(36).substring(2, 10);
             }
             
             function preloadNext() {
@@ -752,6 +753,7 @@
         
         // ========== Banner 双图层切换 - 修复图片溢出 ==========
         (function() {
+            const API_BASE = "https://t.mwm.moe/pc";
             const layer1 = document.getElementById('bannerLayer1');
             const layer2 = document.getElementById('bannerLayer2');
             const layersContainer = document.getElementById('bannerLayers');
@@ -764,7 +766,7 @@
             let slideDirection = 'left-to-right';
             
             function buildUrl() {
-                return "https://qqzttkx.eu.cc/api/bg?_t=" + Date.now();
+                return API_BASE + "?_t=" + Date.now() + "&_rand=" + Math.random().toString(36).substring(2, 10);
             }
             
             function preloadNext() {
