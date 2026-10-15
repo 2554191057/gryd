@@ -13,6 +13,32 @@ async function fetchJSON(url, referer) {
 export default {
   async fetch(request) {
     const url = new URL(request.url);
+    if (url.pathname === '/api/bg') {
+      // 背景图代理：从 t.mwm.moe 拉一张二次元图，缓存 120s 后由 CF CDN 秒出
+      const CACHE_KEY = new Request('https://qqzttkx.eu.cc/api/bg-cache');
+      const cache = caches.default;
+      const cached = await cache.match(CACHE_KEY);
+      if (cached) return cached;
+      try {
+        const img = await fetch('https://t.mwm.moe/pc?_t=' + Date.now(), {
+          headers: { 'User-Agent': QQ_UA, 'Referer': 'https://qqzttkx.eu.cc/' }
+        });
+        if (!img.ok) throw new Error('bg fetch ' + img.status);
+        const resp = new Response(img.body, {
+          status: 200,
+          headers: {
+            'Content-Type': img.headers.get('Content-Type') || 'image/jpeg',
+            'Cache-Control': 'public, max-age=120',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+        await cache.put(CACHE_KEY, resp.clone());
+        return resp;
+      } catch (e) {
+        // 源挂了回退 picsum
+        return Response.redirect('https://picsum.photos/1920/1080', 302);
+      }
+    }
     if (request.method !== 'GET' || url.pathname !== '/api/playlist') {
       return new Response(JSON.stringify({ code: 404, msg: 'not found', data: [] }), {
         headers: { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' }
