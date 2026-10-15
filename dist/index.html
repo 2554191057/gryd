@@ -543,7 +543,7 @@
         <div class="modal-content" style="max-width:340px;text-align:center;padding:24px 20px;">
             <span class="close">&times;</span>
             <h3 style="margin:0 0 6px;font-size:18px;color:#333;">添加我的 QQ</h3>
-            <p style="margin:0 0 14px;font-size:13px;color:#888;">已尝试唤起 QQ 加好友，如未自动打开可手动复制账号搜索添加</p>
+            <p style="margin:0 0 14px;font-size:13px;color:#888;">复制 QQ 号搜索添加，或点击下方按钮打开</p>
             <p style="margin:0 0 14px;font-size:15px;color:#333;">QQ号：<strong id="qqIdText" style="color:#12b7f5;">2554191057</strong></p>
             <button onclick="copyQQId()" style="background:#12b7f5;color:#fff;border:none;border-radius:20px;padding:9px 28px;font-size:14px;cursor:pointer;margin-right:8px;">复制QQ号</button>
             <a href="https://qm.qq.com/q/I4DmGLYs8i" target="_blank" rel="noopener" style="display:inline-block;background:#fff;color:#12b7f5;border:1px solid #12b7f5;border-radius:20px;padding:8px 20px;font-size:14px;text-decoration:none;">打开 QQ 网页版</a>
@@ -573,12 +573,6 @@
             $("#wechatModal").css("display", "block"); 
         }
         function openQQ() {
-            var qq = "2554191057";
-            var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            var protocolLink = isMobile
-                ? "mqqapi://card/show_pslcard?src_type=internal&version=1&card_type=person&uin=" + qq + "&source=qrcard"
-                : "tencent://AddContact/?fromId=45&SubVer=51&uin=" + qq + "&sourceId=13";
-            try { window.location.href = protocolLink; } catch (e) {}
             $("#qqModal").css("display", "block");
         }
         function copyQQId() {
