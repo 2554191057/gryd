@@ -660,7 +660,7 @@
         
         // ========== 背景图双图层切换 ==========
         (function() {
-            const API_BASE = "https://api.lqay.cn/api/zxsjt/?cat=heng";
+            const API_BASE = "https://t.mwm.moe/pc";
             const layer1 = document.getElementById('bgLayer1');
             const layer2 = document.getElementById('bgLayer2');
             
@@ -671,7 +671,7 @@
             let intervalId = null;
             
             function buildUrl() {
-                return API_BASE + "&_t=" + Date.now() + "&_rand=" + Math.random().toString(36).substring(2, 10);
+                return API_BASE + "?_t=" + Date.now() + "&_rand=" + Math.random().toString(36).substring(2, 10);
             }
             
             function preloadNext() {
@@ -740,7 +740,7 @@
         
         // ========== Banner 双图层切换 - 修复图片溢出 ==========
         (function() {
-            const API_BASE = "https://api.lqay.cn/api/zxsjt/?cat=heng";
+            const API_BASE = "https://t.mwm.moe/pc";
             const layer1 = document.getElementById('bannerLayer1');
             const layer2 = document.getElementById('bannerLayer2');
             const layersContainer = document.getElementById('bannerLayers');
@@ -753,7 +753,7 @@
             let slideDirection = 'left-to-right';
             
             function buildUrl() {
-                return API_BASE + "&_t=" + Date.now() + "&_rand=" + Math.random().toString(36).substring(2, 10);
+                return API_BASE + "?_t=" + Date.now() + "&_rand=" + Math.random().toString(36).substring(2, 10);
             }
             
             function preloadNext() {
