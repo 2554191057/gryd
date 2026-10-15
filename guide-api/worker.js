@@ -14,28 +14,19 @@ export default {
   async fetch(request) {
     const url = new URL(request.url);
     if (url.pathname === '/api/bg') {
-      // 背景图代理：从 t.mwm.moe 拉一张二次元图，缓存 120s 后由 CF CDN 秒出
-      const CACHE_KEY = new Request('https://qqzttkx.eu.cc/api/bg-cache');
-      const cache = caches.default;
-      const cached = await cache.match(CACHE_KEY);
-      if (cached) return cached;
+      // 背景图：从 R2 独立存储随机取一张返回（CF 内部毫秒级，无第三方依赖）
       try {
-        const img = await fetch('https://t.mwm.moe/pc?_t=' + Date.now(), {
-          headers: { 'User-Agent': QQ_UA, 'Referer': 'https://qqzttkx.eu.cc/' }
-        });
-        if (!img.ok) throw new Error('bg fetch ' + img.status);
-        const resp = new Response(img.body, {
-          status: 200,
-          headers: {
-            'Content-Type': img.headers.get('Content-Type') || 'image/jpeg',
-            'Cache-Control': 'public, max-age=120',
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-        await cache.put(CACHE_KEY, resp.clone());
-        return resp;
+        const objects = await env.bg_images.list();
+        if (!objects.objects.length) throw new Error('empty bg bucket');
+        const key = objects.objects[Math.floor(Math.random() * objects.objects.length)].key;
+        const obj = await env.bg_images.get(key);
+        if (!obj) throw new Error('bg missing');
+        const headers = new Headers();
+        headers.set('Content-Type', (obj.httpMetadata && obj.httpMetadata.contentType) || 'image/webp');
+        headers.set('Access-Control-Allow-Origin', '*');
+        headers.set('Cache-Control', 'no-store');
+        return new Response(obj.body, { status: 200, headers });
       } catch (e) {
-        // 源挂了回退 picsum
         return Response.redirect('https://picsum.photos/1920/1080', 302);
       }
     }

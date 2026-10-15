@@ -671,10 +671,7 @@
             if (q) q.textContent = QUOTES[Math.floor(Math.random() * QUOTES.length)];
         })();
         
-        // ========== 本地背景图库（自建接口，替代境外 t.mwm.moe） ==========
-        const BG_LIST = ["assets/bg/bg01.webp","assets/bg/bg02.webp","assets/bg/bg03.webp","assets/bg/bg04.webp","assets/bg/bg05.webp","assets/bg/bg06.webp","assets/bg/bg07.webp","assets/bg/bg08.webp","assets/bg/bg09.webp","assets/bg/bg10.webp","assets/bg/bg11.webp","assets/bg/bg12.webp","assets/bg/bg13.webp","assets/bg/bg14.webp","assets/bg/bg15.webp","assets/bg/bg16.webp","assets/bg/bg17.webp","assets/bg/bg18.webp","assets/bg/bg19.webp"];
-        
-        // ========== 背景图双图层切换 ==========
+        // ========== 背景图双图层切换（自建 R2 独立存储接口随机取图） ==========
         (function() {
             const layer1 = document.getElementById('bgLayer1');
             const layer2 = document.getElementById('bgLayer2');
@@ -686,7 +683,7 @@
             let intervalId = null;
             
             function buildUrl() {
-                return BG_LIST[Math.floor(Math.random() * BG_LIST.length)];
+                return "https://qqzttkx.eu.cc/api/bg?_t=" + Date.now();
             }
             
             function preloadNext() {
@@ -767,7 +764,7 @@
             let slideDirection = 'left-to-right';
             
             function buildUrl() {
-                return BG_LIST[Math.floor(Math.random() * BG_LIST.length)];
+                return "https://qqzttkx.eu.cc/api/bg?_t=" + Date.now();
             }
             
             function preloadNext() {
