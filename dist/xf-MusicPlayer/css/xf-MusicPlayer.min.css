@@ -446,6 +446,22 @@ line-height: 1;
 #xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-repeatBtn.xf-repeatActive {
 color: var(--playerColor-6);
 }
+#xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-lyricBtn {
+color: var(--playerColor-1);
+cursor: pointer;
+transition: all 0.3s;
+display: flex;
+align-items: center;
+justify-content: center;
+opacity: 0.8;
+}
+#xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-lyricBtn:hover {
+opacity: 1;
+}
+#xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-lyricBtn.xf-lyricActive {
+color: var(--playerColor-6);
+opacity: 1;
+}
 #xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-progressBar .xf-totalAudioProgress,
 #xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-progressBar .xf-totalAudioProgress .xf-audioProgress {
 height: 5px;

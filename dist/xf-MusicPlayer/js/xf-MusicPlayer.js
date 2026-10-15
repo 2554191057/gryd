@@ -101,8 +101,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
         const xfCssOne = 'xfplayIcon.min.css' || 'xfplayIcon.css'
         const xfCssTow = 'xf-MusicPlayer.min.css' || 'xf-MusicPlayer.css'
-        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015e`
-        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015e`
+        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015g`
+        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015g`
 
         if (location.protocol === 'file:') {
             xfplayIconCSS = 'https://player.xfyun.club/js/xf-MusicPlayer/icon/xfplayIcon.min.css'
@@ -132,7 +132,7 @@ window.addEventListener('DOMContentLoaded', function () {
             mainBox.appendChild(ele)
         }
 
-        let musicStr = `<div class="xf-MusicPlayer-Main"><div class="xf-switchPlayer"><i class="iconfont icon-jiantou2"></i></div><div class="xf-insideSong"><div class="xf-songPicture"><img src="xf-MusicPlayer/images/playerLoad.gif"alt="加载中..."class="xf-musicPicture"><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i></div><div class="xf-musicControl"><div class="xf-topControl"><div class="xf-introduce"><h3 class="xf-songName"></h3><p class="xf-singer"></p></div><ul class="xf-playerControl"><li class="xf-previousSong"><i class="iconfont icon-shangyishou"></i></li><li class="xf-playbackControl"><i class="xf-pause iconfont icon-zantingtingzhi"style="display: none;"></i><i class="xf-playBack iconfont icon-bofang"style="display: block;"></i></li><li class="xf-nextSong"><i class="iconfont icon-xiayishou"></i></li></ul></div><ul class="xf-bottomControl"><li class="xf-audioFrequency"><i class="iconfont icon-shengyin-kai"></i></li><li class="xf-progressBar"><h5 class="xf-totalAudioProgress"><p class="xf-audioProgress"style="width: 0;"></p></h5></li><li class="xf-repeatBtn"><span class="xf-repeatIcon">&#8635;</span></li><li class="xf-playlistBtn"><i class="iconfont icon-gedan"></i></li></ul></div></div><div class="xf-outsideSongList"><ul class="xf-listOfSongs"></ul></div></div>`
+        let musicStr = `<div class="xf-MusicPlayer-Main"><div class="xf-switchPlayer"><i class="iconfont icon-jiantou2"></i></div><div class="xf-insideSong"><div class="xf-songPicture"><img src="xf-MusicPlayer/images/playerLoad.gif"alt="加载中..."class="xf-musicPicture"><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i></div><div class="xf-musicControl"><div class="xf-topControl"><div class="xf-introduce"><h3 class="xf-songName"></h3><p class="xf-singer"></p></div><ul class="xf-playerControl"><li class="xf-previousSong"><i class="iconfont icon-shangyishou"></i></li><li class="xf-playbackControl"><i class="xf-pause iconfont icon-zantingtingzhi"style="display: none;"></i><i class="xf-playBack iconfont icon-bofang"style="display: block;"></i></li><li class="xf-nextSong"><i class="iconfont icon-xiayishou"></i></li></ul></div><ul class="xf-bottomControl"><li class="xf-audioFrequency"><i class="iconfont icon-shengyin-kai"></i></li><li class="xf-progressBar"><h5 class="xf-totalAudioProgress"><p class="xf-audioProgress"style="width: 0;"></p></h5></li><li class="xf-lyricBtn"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M4 6h16v2H4zM4 11h16v2H4zM4 16h10v2H4z"></path></svg></li><li class="xf-repeatBtn"><span class="xf-repeatIcon">&#8635;</span></li><li class="xf-playlistBtn"><i class="iconfont icon-gedan"></i></li></ul></div></div><div class="xf-outsideSongList"><ul class="xf-listOfSongs"></ul></div></div>`
 
         let lyricStr = `<div id="xf-lyric"><ul class="xf-AllLyric-box"></ul></div>`
         characterToElement(musicStr, MusicPlayer)
@@ -205,14 +205,18 @@ window.addEventListener('DOMContentLoaded', function () {
                 images.forEach(image => observer.observe(image))
             }
 
+            let lyricManualOpen = null
+
             const removebePlaying = () => {
                 pause.style.display = 'none'
                 playBack.style.display = 'block'
                 playbackControl.classList.remove('xf-bePlaying')
                 musicPicture.classList.add('xf-pauseRotation')
                 musicalNote.forEach(ele => ele.classList.add('xf-pausePdyMove'))
-                xfLyric.classList.add('xf-lyricHidden')
-                xfLyric.classList.remove('xf-lyricShow')
+                if (lyricManualOpen !== true) {
+                    xfLyric.classList.add('xf-lyricHidden')
+                    xfLyric.classList.remove('xf-lyricShow')
+                }
             }
 
             const addPlaying = () => {
@@ -221,8 +225,10 @@ window.addEventListener('DOMContentLoaded', function () {
                 playbackControl.classList.add('xf-bePlaying')
                 musicPicture.classList.remove('xf-pauseRotation')
                 musicalNote.forEach(ele => ele.classList.remove('xf-pausePdyMove'))
-                xfLyric.classList.remove('xf-lyricHidden')
-                xfLyric.classList.add('xf-lyricShow')
+                if (lyricManualOpen !== false) {
+                    xfLyric.classList.remove('xf-lyricHidden')
+                    xfLyric.classList.add('xf-lyricShow')
+                }
             }
 
             const backgroundColors = ['rgba(85, 0, 255, .35)', 'rgba(0, 225, 255, .35)', 'rgba(255, 165, 0, .35)', 'rgba(0, 100, 0, .35)', 'rgba(80, 0, 0, .35)', 'rgba(255, 192, 203, .35)']
@@ -271,6 +277,7 @@ window.addEventListener('DOMContentLoaded', function () {
                 if (xfMusicAudio.paused) {
                     console.warn('您的浏览器不支持自动播放音乐，请手动点击播放器继续欣赏歌曲吧~')
                     removebePlaying()
+                    displayPopup('点击播放音乐')
                 } else {
                     displayPopup(`正在播放：${songName.textContent}`)
                     addPlaying()
@@ -470,6 +477,25 @@ window.addEventListener('DOMContentLoaded', function () {
                     xfMusicAudio.loop = repeatOne
                     repeatBtn.classList.toggle('xf-repeatActive', repeatOne)
                     displayPopup(repeatOne ? '单曲循环' : '列表循环')
+                })
+
+                // 歌词开关：点击打开/关闭歌词面板（手动状态优先于播放自动显隐）
+                const lyricBtn = MusicPlayer.querySelector('.xf-lyricBtn')
+                lyricBtn.addEventListener('click', function (event) {
+                    event.stopPropagation()
+                    if (lyricManualOpen === true) {
+                        lyricManualOpen = false
+                        xfLyric.classList.add('xf-lyricHidden')
+                        xfLyric.classList.remove('xf-lyricShow')
+                        lyricBtn.classList.remove('xf-lyricActive')
+                        displayPopup('歌词已关闭')
+                    } else {
+                        lyricManualOpen = true
+                        xfLyric.classList.remove('xf-lyricHidden')
+                        xfLyric.classList.add('xf-lyricShow')
+                        lyricBtn.classList.add('xf-lyricActive')
+                        displayPopup('歌词已打开')
+                    }
                 })
 
                 MusicPlayerMain.style.opacity = 0
@@ -942,3 +968,4 @@ window.addEventListener('DOMContentLoaded', function () {
 
     console.log(`%c${message}%c${description}`, printStyle[0], printStyle[1])
 })
+/*gryd-force*/
