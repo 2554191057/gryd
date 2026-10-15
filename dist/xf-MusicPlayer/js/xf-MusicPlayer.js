@@ -101,8 +101,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
         const xfCssOne = 'xfplayIcon.min.css' || 'xfplayIcon.css'
         const xfCssTow = 'xf-MusicPlayer.min.css' || 'xf-MusicPlayer.css'
-        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015b`
-        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015b`
+        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015c`
+        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015c`
 
         if (location.protocol === 'file:') {
             xfplayIconCSS = 'https://player.xfyun.club/js/xf-MusicPlayer/icon/xfplayIcon.min.css'
@@ -147,9 +147,7 @@ window.addEventListener('DOMContentLoaded', function () {
             const xfMusicAudio = document.getElementById('xf-musicAudio')
             xfMusicAudio.controls = 0
 
-            if (interfaceAndLocal === null) {
-                characterToElement(lyricStr, playerBody)
-            }
+            characterToElement(lyricStr, playerBody)
 
             const setTimeoutPromise = delay => new Promise(resolve => setTimeout(resolve, delay))
 
@@ -213,10 +211,8 @@ window.addEventListener('DOMContentLoaded', function () {
                 playbackControl.classList.remove('xf-bePlaying')
                 musicPicture.classList.add('xf-pauseRotation')
                 musicalNote.forEach(ele => ele.classList.add('xf-pausePdyMove'))
-                if (interfaceAndLocal === null) {
-                    xfLyric.classList.add('xf-lyricHidden')
-                    xfLyric.classList.remove('xf-lyricShow')
-                }
+                xfLyric.classList.add('xf-lyricHidden')
+                xfLyric.classList.remove('xf-lyricShow')
             }
 
             const addPlaying = () => {
@@ -225,16 +221,16 @@ window.addEventListener('DOMContentLoaded', function () {
                 playbackControl.classList.add('xf-bePlaying')
                 musicPicture.classList.remove('xf-pauseRotation')
                 musicalNote.forEach(ele => ele.classList.remove('xf-pausePdyMove'))
-                if (interfaceAndLocal === null) {
-                    xfLyric.classList.remove('xf-lyricHidden')
-                    xfLyric.classList.add('xf-lyricShow')
-                }
+                xfLyric.classList.remove('xf-lyricHidden')
+                xfLyric.classList.add('xf-lyricShow')
             }
 
             const backgroundColors = ['rgba(85, 0, 255, .35)', 'rgba(0, 225, 255, .35)', 'rgba(255, 165, 0, .35)', 'rgba(0, 100, 0, .35)', 'rgba(80, 0, 0, .35)', 'rgba(255, 192, 203, .35)']
             const themeIndex = { 'xf-original': 0, 'xf-sky': 1, 'xf-orange': 2, 'xf-darkGreen': 3, 'xf-wineRed': 4, 'xf-girlPink': 5 }
 
             const bgIndex = themeIndex[themeStyle] ?? 0
+
+            let localSongsData = []
 
             let xfMusicPop
             let isAnimationInProgress = 0
@@ -480,6 +476,8 @@ window.addEventListener('DOMContentLoaded', function () {
                             res = res.playlist.tracks
                         }
 
+                        localSongsData = res
+
                         await Promise.all(
                             res.map(async data => {
                                 const musicId = data.id
@@ -581,77 +579,90 @@ window.addEventListener('DOMContentLoaded', function () {
 
                                 const lyricsShowOrHide = MusicPlayer.getAttribute('data-lyrics')
                                 
-                                if (interfaceAndLocal === null && lyricsShowOrHide !== '0' && lyricsShowOrHide !== 'false') {
+                                if (lyricsShowOrHide !== '0' && lyricsShowOrHide !== 'false') {
                                     xfLyric.style.backgroundColor = backgroundColors[bgIndex]
 
                                     let xfAllLyri = xfLyric.querySelector('.xf-AllLyric-box')
-                                    const musicLyric = eleInExecution[0].dataset.index
-                                    const wyLyric = `${musicApi}/musicAll/?lyric=${musicLyric}`
-                                    fetchData(wyLyric)
-                                        .then(res => {
-                                            xfAllLyri.innerHTML = ''
-                                            
-                                            if (res.code === 200) {
-                                                const lyricsData = res.lrc.lyric
-                                                const lines = lyricsData.split('\n')
 
-                                                const lyricsArray = lines.map(line => {
-                                                    const timeEndIndex = line.indexOf(']')
-                                                    if (timeEndIndex !== -1) {
-                                                        const time = convertTimeToSeconds(line.substring(1, timeEndIndex))
-                                                        const text = line.substring(timeEndIndex + 1).trim()
-                                                        return { time, text }
-                                                    } else {
-                                                        return null
-                                                    }
-                                                }).filter(lyric => lyric !== null)
+                                    const convertTimeToSeconds = time => {
+                                        const [minutes, seconds] = time.split(':').map(parseFloat)
+                                        return minutes * 60 + seconds
+                                    }
 
-                                                function convertTimeToSeconds(time) {
-                                                    const [minutes, seconds] = time.split(':').map(parseFloat)
-                                                    return minutes * 60 + seconds
-                                                }
+                                    const renderLyrics = lyricsData => {
+                                        xfAllLyri.innerHTML = ''
 
-                                                lyricsArray.forEach(lyric => {
-                                                    const lisEle = document.createElement('li')
-                                                    lisEle.classList.add('xf-ly')
-                                                    lisEle.textContent = lyric.text
-                                                    xfAllLyri.appendChild(lisEle)
-                                                })
+                                        const lines = lyricsData.split('\n')
 
-                                                function updateLyricDisplay() {
-                                                    const currentTime = xfMusicAudio.currentTime
-
-                                                    for (let i = 0; i < lyricsArray.length; i++) {
-                                                        const lisEle = xfAllLyri.children[i]
-                                                        if (lisEle) {
-                                                            lisEle.classList.remove('xf-textShow')
-                                                        }
-                                                    }
-
-                                                    let currentLyricIndex
-                                                    for (let j = 0; j < lyricsArray.length; j++) {
-                                                        if (currentTime >= lyricsArray[j].time) {
-                                                            currentLyricIndex = j
-                                                            if (j < lyricsArray.length - 1 && currentTime >= lyricsArray[j + 1].time) {
-                                                                continue
-                                                            }
-                                                            break
-                                                        }
-                                                    }
-
-                                                    const lisEle = xfAllLyri.children[currentLyricIndex]
-                                                    if (lisEle) {
-                                                        lisEle.classList.add('xf-textShow')
-                                                    }
-                                                }
-
-                                                xfMusicAudio.removeEventListener('timeupdate', updateLyricDisplay)
-
-                                                xfMusicAudio.addEventListener('timeupdate', updateLyricDisplay)
-
+                                        const lyricsArray = lines.map(line => {
+                                            const timeEndIndex = line.indexOf(']')
+                                            if (timeEndIndex !== -1) {
+                                                const time = convertTimeToSeconds(line.substring(1, timeEndIndex))
+                                                const text = line.substring(timeEndIndex + 1).trim()
+                                                return { time, text }
+                                            } else {
+                                                return null
                                             }
+                                        }).filter(lyric => lyric !== null)
+
+                                        lyricsArray.forEach(lyric => {
+                                            const lisEle = document.createElement('li')
+                                            lisEle.classList.add('xf-ly')
+                                            lisEle.textContent = lyric.text
+                                            xfAllLyri.appendChild(lisEle)
                                         })
-                                        .catch(error => console.error(`歌词获取失败：${error}`))
+
+                                        const updateLyricDisplay = () => {
+                                            const currentTime = xfMusicAudio.currentTime
+
+                                            for (let i = 0; i < lyricsArray.length; i++) {
+                                                const lisEle = xfAllLyri.children[i]
+                                                if (lisEle) {
+                                                    lisEle.classList.remove('xf-textShow')
+                                                }
+                                            }
+
+                                            let currentLyricIndex
+                                            for (let j = 0; j < lyricsArray.length; j++) {
+                                                if (currentTime >= lyricsArray[j].time) {
+                                                    currentLyricIndex = j
+                                                    if (j < lyricsArray.length - 1 && currentTime >= lyricsArray[j + 1].time) {
+                                                        continue
+                                                    }
+                                                    break
+                                                }
+                                            }
+
+                                            const lisEle = xfAllLyri.children[currentLyricIndex]
+                                            if (lisEle) {
+                                                lisEle.classList.add('xf-textShow')
+                                            }
+                                        }
+
+                                        xfMusicAudio.removeEventListener('timeupdate', updateLyricDisplay)
+
+                                        xfMusicAudio.addEventListener('timeupdate', updateLyricDisplay)
+                                    }
+
+                                    const musicLyric = eleInExecution[0].dataset.index
+
+                                    if (interfaceAndLocal === null) {
+                                        const wyLyric = `${musicApi}/musicAll/?lyric=${musicLyric}`
+                                        fetchData(wyLyric)
+                                            .then(res => {
+                                                if (res.code === 200) {
+                                                    renderLyrics(res.lrc.lyric)
+                                                }
+                                            })
+                                            .catch(error => console.error(`歌词获取失败：${error}`))
+                                    } else {
+                                        const localLyric = localSongsData[index] && localSongsData[index].lyric
+                                        if (localLyric) {
+                                            renderLyrics(localLyric)
+                                        } else {
+                                            xfAllLyri.innerHTML = ''
+                                        }
+                                    }
                                 }
                             }
 
