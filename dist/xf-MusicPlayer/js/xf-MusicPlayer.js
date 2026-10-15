@@ -101,8 +101,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
         const xfCssOne = 'xfplayIcon.min.css' || 'xfplayIcon.css'
         const xfCssTow = 'xf-MusicPlayer.min.css' || 'xf-MusicPlayer.css'
-        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015d`
-        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015d`
+        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015e`
+        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015e`
 
         if (location.protocol === 'file:') {
             xfplayIconCSS = 'https://player.xfyun.club/js/xf-MusicPlayer/icon/xfplayIcon.min.css'
@@ -607,6 +607,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
                                     const renderLyrics = lyricsData => {
                                         xfAllLyri.innerHTML = ''
+                                        document.querySelectorAll('.xf-fullscreenLyric').forEach(el => el.remove())
 
                                         const lines = lyricsData.split('\n')
 
@@ -625,19 +626,54 @@ window.addEventListener('DOMContentLoaded', function () {
                                             const lisEle = document.createElement('li')
                                             lisEle.classList.add('xf-ly')
                                             lisEle.textContent = lyric.text
-                                            lisEle.addEventListener('click', () => {
-                                                if (xfMusicAudio && xfMusicAudio.src) {
-                                                    xfMusicAudio.currentTime = lyric.time
-                                                    playMusic()
-                                                    addPlaying()
-                                                    const duration = xfMusicAudio.duration
-                                                    if (duration) {
-                                                        audioProgress.style.width = `${(lyric.time / duration) * 100}%`
-                                                    }
-                                                }
-                                            })
                                             xfAllLyri.appendChild(lisEle)
                                         })
+
+                                        // 全屏歌词面板：点击底部歌词条打开，点击任意行跳转
+                                        let fullscreenLyric = null
+                                        const closeFullscreenLyric = () => {
+                                            if (fullscreenLyric) {
+                                                fullscreenLyric.remove()
+                                                fullscreenLyric = null
+                                            }
+                                        }
+                                        const openFullscreenLyric = () => {
+                                            if (fullscreenLyric) {
+                                                closeFullscreenLyric()
+                                                return
+                                            }
+                                            fullscreenLyric = document.createElement('div')
+                                            fullscreenLyric.className = 'xf-fullscreenLyric'
+                                            fullscreenLyric.innerHTML = `<div class="xf-fullscreenLyric-dialog">
+                                                <header class="xf-fullscreenLyric-header"><span>${songName.textContent || '歌词'}</span><i class="xf-fullscreenLyric-close">✕</i></header>
+                                                <ul class="xf-fullscreenLyric-list"></ul>
+                                            </div>`
+                                            const list = fullscreenLyric.querySelector('.xf-fullscreenLyric-list')
+                                            lyricsArray.forEach(lyric => {
+                                                const li = document.createElement('li')
+                                                li.textContent = lyric.text
+                                                li.addEventListener('click', () => {
+                                                    if (xfMusicAudio && xfMusicAudio.src) {
+                                                        xfMusicAudio.currentTime = lyric.time
+                                                        playMusic()
+                                                        addPlaying()
+                                                        const duration = xfMusicAudio.duration
+                                                        if (duration) {
+                                                            audioProgress.style.width = `${(lyric.time / duration) * 100}%`
+                                                        }
+                                                    }
+                                                })
+                                                list.appendChild(li)
+                                            })
+                                            fullscreenLyric.querySelector('.xf-fullscreenLyric-close').addEventListener('click', closeFullscreenLyric)
+                                            fullscreenLyric.addEventListener('click', e => {
+                                                if (e.target === fullscreenLyric) {
+                                                    closeFullscreenLyric()
+                                                }
+                                            })
+                                            document.body.appendChild(fullscreenLyric)
+                                        }
+                                        xfLyric.onclick = openFullscreenLyric
 
                                         const updateLyricDisplay = () => {
                                             const currentTime = xfMusicAudio.currentTime
@@ -663,6 +699,16 @@ window.addEventListener('DOMContentLoaded', function () {
                                             const lisEle = xfAllLyri.children[currentLyricIndex]
                                             if (lisEle) {
                                                 lisEle.classList.add('xf-textShow')
+                                            }
+
+                                            if (fullscreenLyric) {
+                                                const flis = fullscreenLyric.querySelectorAll('.xf-fullscreenLyric-list li')
+                                                flis.forEach(li => li.classList.remove('xf-textShow'))
+                                                const cur = flis[currentLyricIndex]
+                                                if (cur) {
+                                                    cur.classList.add('xf-textShow')
+                                                    cur.scrollIntoView({ block: 'center', behavior: 'smooth' })
+                                                }
                                             }
                                         }
 
