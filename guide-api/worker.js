@@ -18,7 +18,7 @@ export default {
         headers: { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' }
       });
     }
-    // 内置缓存（60s）：命中则直接返回，未命中才实时拉 QQ
+    // 内置缓存（15s）：命中则直接返回，未命中才实时拉 QQ
     const CACHE_KEY = new Request('https://qqzttkx.eu.cc/api/playlist-cache');
     const cache = caches.default;
     const cached = await cache.match(CACHE_KEY);
@@ -81,7 +81,7 @@ export default {
       });
 
       const resp = new Response(JSON.stringify({ code: 200, msg: 'success', data: list }), {
-        headers: { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=60' }
+        headers: { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=15' }
       });
       // 存入内置缓存（TTL 由 Cache-Control: max-age=60 控制）
       await cache.put(CACHE_KEY, resp.clone());
