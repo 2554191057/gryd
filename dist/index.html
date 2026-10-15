@@ -859,5 +859,45 @@
     <xf-music-player language="zh" mode="cloud" api-url="https://qqzttkx.eu.cc/api/playlist" is-auto-popup="true" autoplay="true" theme="xf-orange-theme" play-mode="order" bottom="2em" memory-key="xf-music-player" remember-playback="true"></xf-music-player>
     <script src="https://player.xfyun.club/js/music-player/music-player.min.js"></script>
 
+    <!-- 看板娘（复用博客站本地资源） -->
+    <script>
+    (function() {
+        if (screen.width < 768) return;
+        var CDN = 'https://qqzbk.eu.cc/live2d/';
+        if (!localStorage.getItem('modelId')) {
+            localStorage.setItem('modelId', '0');
+            localStorage.setItem('modelTexturesId', '0');
+        }
+        function loadRes(url, type) {
+            return new Promise(function(resolve, reject) {
+                var tag = type === 'css' ? document.createElement('link') : document.createElement('script');
+                if (type === 'css') { tag.rel = 'stylesheet'; tag.href = url; } else { tag.src = url; }
+                tag.onload = function() { resolve(url); };
+                tag.onerror = function() { reject(url); };
+                document.head.appendChild(tag);
+            });
+        }
+        Promise.all([
+            loadRes(CDN + 'css/right.css', 'css'),
+            loadRes(CDN + 'live2d.min.js', 'js'),
+            loadRes(CDN + 'waifu-tips.js', 'js')
+        ]).then(function() {
+            window.UtDebug = window.UtDebug || {};
+            ['error', 'log', 'warn'].forEach(function(m) {
+                if (typeof window.UtDebug[m] !== 'function') window.UtDebug[m] = function() {};
+            });
+            initWidget({
+                waifuPath: CDN + 'waifu-tips.json',
+                cdnPath: CDN,
+                tools: ['chat', 'hitokoto', 'asteroids', 'switch-model', 'switch-texture', 'photo', 'info', 'quit']
+            });
+        }).catch(function() {});
+    })();
+    </script>
+    <style>
+    #waifu { right: 20px; bottom: 0; margin-bottom: 60px; width: 240px; }
+    #live2d { width: 240px !important; height: 300px !important; }
+    </style>
+
 </body>
 </html>
