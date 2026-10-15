@@ -23,17 +23,20 @@
             display:none;
             position:fixed;
             z-index:1;
-            padding-top:60px;
             left:0;
             top:0;
             width:100%;
             height:100%;
             overflow:auto;
             background-color:rgb(0,0,0);
-            background-color:rgba(0,0,0,0.55)
+            background-color:rgba(0,0,0,0.55);
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+            box-sizing:border-box
         }
         .modal-content {
-            margin:5% auto;
+            margin:0;
             padding:20px;
             border:1px solid #ddd;
             width:80%;
@@ -494,7 +497,7 @@
                     </div>
                 </a>
                 <!-- 快手 -->
-                <a href="https://www.kuaishou.com/profile/qqz200786" class="item" target="_blank">
+                <a href="javascript:void(0);" class="item" onclick="openKuaishou()">
                     <div class="content-wrap">
                         <div class="img-wrap"><span class="icon-emoji" style="background:linear-gradient(135deg,#ff4906,#ff9c06)">🦘</span></div>
                         <div>
@@ -550,6 +553,9 @@
         </div>
     </div>
     
+    <!-- 页面内提示 toast -->
+    <div id="toast" style="display:none;position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:rgba(0,0,0,0.75);color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:9999;max-width:80%;text-align:center;line-height:1.5;"></div>
+    
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script>
         jQuery(document).ready(function($) {
@@ -567,13 +573,51 @@
         
         function showModal(imageSrc) { 
             $("#modalImage").attr("src", imageSrc); 
-            $("#myModal").css("display", "block"); 
+            $("#myModal").css("display", "flex"); 
         }
         function showWechat() { 
-            $("#wechatModal").css("display", "block"); 
+            $("#wechatModal").css("display", "flex"); 
         }
         function openQQ() {
-            $("#qqModal").css("display", "block");
+            $("#qqModal").css("display", "flex");
+        }
+        function openKuaishou() {
+            var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            var homePage = "https://v.kuaishou.com/KW1HbUAN";
+            var ksId = "qqz200786";
+            if (isMobile) {
+                showToast("正在打开快手主页…");
+                var win = window.open(homePage, "_blank");
+                if (!win) window.location.href = homePage;
+            } else {
+                copyText(ksId).then(function(ok) {
+                    if (ok) {
+                        showToast("已复制快手号 " + ksId + "，即将跳转快手首页…请在搜索框粘贴");
+                        setTimeout(function() {
+                            var w = window.open("https://www.kuaishou.com", "_blank");
+                            if (!w) window.location.href = "https://www.kuaishou.com";
+                        }, 400);
+                    } else {
+                        showToast("复制失败，请手动复制快手号：" + ksId, true);
+                    }
+                });
+            }
+        }
+        function showToast(msg, isError) {
+            var t = document.getElementById("toast");
+            t.textContent = msg;
+            t.style.background = isError ? "rgba(220,50,50,0.88)" : "rgba(0,0,0,0.75)";
+            t.style.display = "block";
+            clearTimeout(t._timer);
+            t._timer = setTimeout(function() { t.style.display = "none"; }, 2500);
+        }
+        function copyText(text) {
+            return new Promise(function(resolve) {
+                function fb() { resolve(fallbackCopy(text)); }
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(function() { resolve(true); }).catch(fb);
+                } else { fb(); }
+            });
         }
         function copyQQId() {
             var id = document.getElementById("qqIdText").innerText;
@@ -600,8 +644,10 @@
             ta.style.opacity = "0";
             document.body.appendChild(ta);
             ta.select();
-            try { document.execCommand("copy"); } catch (e) {}
+            var ok = false;
+            try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
             document.body.removeChild(ta);
+            return ok;
         }
         $(".close").click(function() { 
             $(this).closest(".modal").css("display", "none"); 
