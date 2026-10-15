@@ -306,7 +306,7 @@ window.addEventListener('DOMContentLoaded', function () {
             }
 
             const playerMusicItem = (index, music, picture, Title, Author, loadingTime) => {
-                let lis = `<li class="xf-songsItem"data-index="${index}"data-mp3url="${music}"><div class="xf-songListSongPictures"><i class="xf-songIcon iconfont icon-bofang"></i><img data-musicLjz-src="${picture + '?param=200x200'}"src="https://player.xfyun.club/img/playerLoad.gif"alt="songPicture"class="xf-playlistImg"></div><div class="xf-playlistSongInformation"><div class="xf-songTitle"><h5 class="xf-songName">${Title}</h5><p class="xf-authorAndDuration"><sapn class="xf-songAuthor">${Author}</sapn><span class="xf-songLength iconfont icon-shijian">\t${loadingTime}</span></p></div></div></li>`
+                let lis = `<li class="xf-songsItem"data-index="${index}"data-mp3url="${music}"><div class="xf-songListSongPictures"><i class="xf-songIcon iconfont icon-bofang"></i><img data-musicLjz-src="${picture}"src="${picture}"alt="songPicture"class="xf-playlistImg"></div><div class="xf-playlistSongInformation"><div class="xf-songTitle"><h5 class="xf-songName">${Title}</h5><p class="xf-authorAndDuration"><sapn class="xf-songAuthor">${Author}</sapn><span class="xf-songLength iconfont icon-shijian">\t${loadingTime}</span></p></div></div></li>`
                 characterToElement(lis, listOfSongs)
             }
 
