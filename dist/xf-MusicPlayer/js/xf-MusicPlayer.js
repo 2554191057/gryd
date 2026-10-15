@@ -101,8 +101,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
         const xfCssOne = 'xfplayIcon.min.css' || 'xfplayIcon.css'
         const xfCssTow = 'xf-MusicPlayer.min.css' || 'xf-MusicPlayer.css'
-        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015g`
-        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015g`
+        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015j`
+        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015j`
 
         if (location.protocol === 'file:') {
             xfplayIconCSS = 'https://player.xfyun.club/js/xf-MusicPlayer/icon/xfplayIcon.min.css'
@@ -147,7 +147,7 @@ window.addEventListener('DOMContentLoaded', function () {
             const xfMusicAudio = document.getElementById('xf-musicAudio')
             xfMusicAudio.controls = 0
 
-            characterToElement(lyricStr, playerBody)
+            characterToElement(lyricStr, MusicPlayer.querySelector('.xf-musicControl'))
 
             const setTimeoutPromise = delay => new Promise(resolve => setTimeout(resolve, delay))
 
@@ -205,18 +205,14 @@ window.addEventListener('DOMContentLoaded', function () {
                 images.forEach(image => observer.observe(image))
             }
 
-            let lyricManualOpen = null
-
             const removebePlaying = () => {
                 pause.style.display = 'none'
                 playBack.style.display = 'block'
                 playbackControl.classList.remove('xf-bePlaying')
                 musicPicture.classList.add('xf-pauseRotation')
                 musicalNote.forEach(ele => ele.classList.add('xf-pausePdyMove'))
-                if (lyricManualOpen !== true) {
-                    xfLyric.classList.add('xf-lyricHidden')
-                    xfLyric.classList.remove('xf-lyricShow')
-                }
+                xfLyric.classList.add('xf-lyricHidden')
+                xfLyric.classList.remove('xf-lyricShow')
             }
 
             const addPlaying = () => {
@@ -225,10 +221,8 @@ window.addEventListener('DOMContentLoaded', function () {
                 playbackControl.classList.add('xf-bePlaying')
                 musicPicture.classList.remove('xf-pauseRotation')
                 musicalNote.forEach(ele => ele.classList.remove('xf-pausePdyMove'))
-                if (lyricManualOpen !== false) {
-                    xfLyric.classList.remove('xf-lyricHidden')
-                    xfLyric.classList.add('xf-lyricShow')
-                }
+                xfLyric.classList.remove('xf-lyricHidden')
+                xfLyric.classList.add('xf-lyricShow')
             }
 
             const backgroundColors = ['rgba(85, 0, 255, .35)', 'rgba(0, 225, 255, .35)', 'rgba(255, 165, 0, .35)', 'rgba(0, 100, 0, .35)', 'rgba(80, 0, 0, .35)', 'rgba(255, 192, 203, .35)']
@@ -490,22 +484,20 @@ window.addEventListener('DOMContentLoaded', function () {
                     displayPopup(repeatOne ? '单曲循环' : '列表循环')
                 })
 
-                // 歌词开关：点击打开/关闭歌词面板（手动状态优先于播放自动显隐）
+                // 歌词按钮：点击打开/关闭全屏歌词面板
                 const lyricBtn = MusicPlayer.querySelector('.xf-lyricBtn')
                 lyricBtn.addEventListener('click', function (event) {
                     event.stopPropagation()
-                    if (lyricManualOpen === true) {
-                        lyricManualOpen = false
-                        xfLyric.classList.add('xf-lyricHidden')
-                        xfLyric.classList.remove('xf-lyricShow')
-                        lyricBtn.classList.remove('xf-lyricActive')
-                        displayPopup('歌词已关闭')
-                    } else {
-                        lyricManualOpen = true
-                        xfLyric.classList.remove('xf-lyricHidden')
-                        xfLyric.classList.add('xf-lyricShow')
-                        lyricBtn.classList.add('xf-lyricActive')
-                        displayPopup('歌词已打开')
+                    if (window._xfOpenFullscreen) {
+                        window._xfOpenFullscreen()
+                    }
+                })
+
+                // 点击底部歌词字幕：打开全屏歌词
+                xfLyric.addEventListener('click', function (event) {
+                    event.stopPropagation()
+                    if (window._xfOpenFullscreen) {
+                        window._xfOpenFullscreen()
                     }
                 })
 
@@ -659,19 +651,19 @@ window.addEventListener('DOMContentLoaded', function () {
                                             }
                                         }).filter(lyric => lyric !== null)
 
-                                        lyricsArray.forEach(lyric => {
-                                            const lisEle = document.createElement('li')
-                                            lisEle.classList.add('xf-ly')
-                                            lisEle.textContent = lyric.text
-                                            xfAllLyri.appendChild(lisEle)
-                                        })
+                                        if (lyricsArray.length) {
+                                            xfLyric.textContent = lyricsArray[0].text
+                                        }
+                                        window._xfLyricsData = lyricsArray
 
                                         // 全屏歌词面板：点击底部歌词条打开，点击任意行跳转
                                         let fullscreenLyric = null
+                                        window._xfFullscreenLyric = null
                                         const closeFullscreenLyric = () => {
                                             if (fullscreenLyric) {
                                                 fullscreenLyric.remove()
                                                 fullscreenLyric = null
+                                                window._xfFullscreenLyric = null
                                             }
                                         }
                                         const openFullscreenLyric = () => {
@@ -709,37 +701,28 @@ window.addEventListener('DOMContentLoaded', function () {
                                                 }
                                             })
                                             document.body.appendChild(fullscreenLyric)
+                                            window._xfFullscreenLyric = fullscreenLyric
                                         }
+                                        window._xfOpenFullscreen = openFullscreenLyric
                                         xfLyric.onclick = openFullscreenLyric
 
                                         const updateLyricDisplay = () => {
                                             const currentTime = xfMusicAudio.currentTime
+                                            const lyrics = window._xfLyricsData || []
 
-                                            for (let i = 0; i < lyricsArray.length; i++) {
-                                                const lisEle = xfAllLyri.children[i]
-                                                if (lisEle) {
-                                                    lisEle.classList.remove('xf-textShow')
-                                                }
-                                            }
-
-                                            let currentLyricIndex
-                                            for (let j = 0; j < lyricsArray.length; j++) {
-                                                if (currentTime >= lyricsArray[j].time) {
+                                            let currentLyricIndex = 0
+                                            for (let j = 0; j < lyrics.length; j++) {
+                                                if (currentTime >= lyrics[j].time) {
                                                     currentLyricIndex = j
-                                                    if (j < lyricsArray.length - 1 && currentTime >= lyricsArray[j + 1].time) {
-                                                        continue
-                                                    }
-                                                    break
                                                 }
                                             }
 
-                                            const lisEle = xfAllLyri.children[currentLyricIndex]
-                                            if (lisEle) {
-                                                lisEle.classList.add('xf-textShow')
+                                            if (lyrics[currentLyricIndex]) {
+                                                xfLyric.textContent = lyrics[currentLyricIndex].text
                                             }
 
-                                            if (fullscreenLyric) {
-                                                const flis = fullscreenLyric.querySelectorAll('.xf-fullscreenLyric-list li')
+                                            if (window._xfFullscreenLyric) {
+                                                const flis = window._xfFullscreenLyric.querySelectorAll('.xf-fullscreenLyric-list li')
                                                 flis.forEach(li => li.classList.remove('xf-textShow'))
                                                 const cur = flis[currentLyricIndex]
                                                 if (cur) {
