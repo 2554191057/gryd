@@ -101,8 +101,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
         const xfCssOne = 'xfplayIcon.min.css' || 'xfplayIcon.css'
         const xfCssTow = 'xf-MusicPlayer.min.css' || 'xf-MusicPlayer.css'
-        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}`
-        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}`
+        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015b`
+        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015b`
 
         if (location.protocol === 'file:') {
             xfplayIconCSS = 'https://player.xfyun.club/js/xf-MusicPlayer/icon/xfplayIcon.min.css'
@@ -132,7 +132,7 @@ window.addEventListener('DOMContentLoaded', function () {
             mainBox.appendChild(ele)
         }
 
-        let musicStr = `<div class="xf-MusicPlayer-Main"><div class="xf-switchPlayer"><i class="iconfont icon-jiantou2"></i></div><div class="xf-insideSong"><div class="xf-songPicture"><img src="https://player.xfyun.club/img/playerLoad.gif"alt="加载中..."class="xf-musicPicture"><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i></div><div class="xf-musicControl"><div class="xf-topControl"><div class="xf-introduce"><h3 class="xf-songName"></h3><p class="xf-singer"></p></div><ul class="xf-playerControl"><li class="xf-previousSong"><i class="iconfont icon-shangyishou"></i></li><li class="xf-playbackControl"><i class="xf-pause iconfont icon-zantingtingzhi"style="display: none;"></i><i class="xf-playBack iconfont icon-bofang"style="display: block;"></i></li><li class="xf-nextSong"><i class="iconfont icon-xiayishou"></i></li></ul></div><ul class="xf-bottomControl"><li class="xf-audioFrequency"><i class="iconfont icon-shengyin-kai"></i></li><li class="xf-progressBar"><h5 class="xf-totalAudioProgress"><p class="xf-audioProgress"style="width: 0;"></p></h5></li><li class="xf-playlistBtn"><i class="iconfont icon-gedan"></i></li></ul></div></div><div class="xf-outsideSongList"><ul class="xf-listOfSongs"></ul></div></div>`
+        let musicStr = `<div class="xf-MusicPlayer-Main"><div class="xf-switchPlayer"><i class="iconfont icon-jiantou2"></i></div><div class="xf-insideSong"><div class="xf-songPicture"><img src="xf-MusicPlayer/images/playerLoad.gif"alt="加载中..."class="xf-musicPicture"><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i></div><div class="xf-musicControl"><div class="xf-topControl"><div class="xf-introduce"><h3 class="xf-songName"></h3><p class="xf-singer"></p></div><ul class="xf-playerControl"><li class="xf-previousSong"><i class="iconfont icon-shangyishou"></i></li><li class="xf-playbackControl"><i class="xf-pause iconfont icon-zantingtingzhi"style="display: none;"></i><i class="xf-playBack iconfont icon-bofang"style="display: block;"></i></li><li class="xf-nextSong"><i class="iconfont icon-xiayishou"></i></li></ul></div><ul class="xf-bottomControl"><li class="xf-audioFrequency"><i class="iconfont icon-shengyin-kai"></i></li><li class="xf-progressBar"><h5 class="xf-totalAudioProgress"><p class="xf-audioProgress"style="width: 0;"></p></h5></li><li class="xf-playlistBtn"><i class="iconfont icon-gedan"></i></li></ul></div></div><div class="xf-outsideSongList"><ul class="xf-listOfSongs"></ul></div></div>`
 
         let lyricStr = `<div id="xf-lyric"><ul class="xf-AllLyric-box"></ul></div>`
         characterToElement(musicStr, MusicPlayer)
@@ -394,17 +394,69 @@ window.addEventListener('DOMContentLoaded', function () {
                     }
                 })
 
-                audioFrequency.addEventListener('click', function () {
-                    xfMusicAudio.muted = !xfMusicAudio.muted
+                // 竖向音量调节条（点击喇叭图标向上弹出）
+                const volPop = document.createElement('div')
+                volPop.className = 'xf-volumePop'
+                volPop.style.display = 'none'
+                volPop.innerHTML = '<h5 class="xf-volumeTotal"><p class="xf-volumeCur" style="height: 80%;"></p></h5>'
+                audioFrequency.appendChild(volPop)
 
-                    if (xfMusicAudio.muted) {
-                        displayPopup('开启静音')
-                        this.children[0].classList.remove('icon-shengyin-kai')
-                        this.children[0].classList.add('icon-shengyin-guan')
+                const volCur = volPop.querySelector('.xf-volumeCur')
+                let isVolumeSliding = false
+                let curVolume = 0.8
+                xfMusicAudio.volume = curVolume
+
+                const setVolume = vol => {
+                    curVolume = Math.max(0, Math.min(1, vol))
+                    xfMusicAudio.volume = curVolume
+                    volCur.style.height = `${curVolume * 100}%`
+                    if (curVolume <= 0) {
+                        xfMusicAudio.muted = true
+                        audioFrequency.children[0].classList.add('icon-shengyin-guan')
+                        audioFrequency.children[0].classList.remove('icon-shengyin-kai')
                     } else {
-                        displayPopup('取消静音')
-                        this.children[0].classList.add('icon-shengyin-kai')
-                        this.children[0].classList.remove('icon-shengyin-guan')
+                        xfMusicAudio.muted = false
+                        audioFrequency.children[0].classList.add('icon-shengyin-kai')
+                        audioFrequency.children[0].classList.remove('icon-shengyin-guan')
+                    }
+                }
+
+                const volumeFromEvent = e => {
+                    const rect = volPop.getBoundingClientRect()
+                    const y = e.clientY - rect.top
+                    return 1 - y / rect.height
+                }
+
+                audioFrequency.addEventListener('click', function (event) {
+                    event.stopPropagation()
+                    if (volPop.contains(event.target)) return
+                    if (volPop.style.display === 'none') {
+                        volPop.style.display = 'flex'
+                    } else {
+                        volPop.style.display = 'none'
+                    }
+                })
+
+                volPop.addEventListener('mousedown', function (e) {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    isVolumeSliding = true
+                    setVolume(volumeFromEvent(e))
+                })
+                volPop.addEventListener('click', function (e) {
+                    e.stopPropagation()
+                })
+                document.addEventListener('mousemove', function (e) {
+                    if (isVolumeSliding) {
+                        setVolume(volumeFromEvent(e))
+                    }
+                })
+                document.addEventListener('mouseup', function () {
+                    isVolumeSliding = false
+                })
+                document.addEventListener('click', function (event) {
+                    if (volPop.style.display !== 'none' && !audioFrequency.contains(event.target)) {
+                        volPop.style.display = 'none'
                     }
                 })
 

@@ -362,10 +362,49 @@ justify-content: space-between;
 #xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl li {
 display: flex;
 align-items: center;
+flex-shrink: 0;
 }
 #xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-progressBar {
-width: 70%;
+flex: 1 1 auto;
+width: auto;
+min-width: 0;
 padding: 0 5px;
+}
+#xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-audioFrequency {
+position: relative;
+}
+#xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-volumePop {
+position: absolute;
+bottom: calc(100% + 10px);
+left: 50%;
+transform: translateX(-50%);
+width: 26px;
+height: 96px;
+padding: 8px 0;
+border-radius: var(--playerRadius-1);
+background-color: rgba(255, 255, 255, 0.18);
+box-shadow: var(--playerShadow-1);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 12;
+}
+#xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-volumePop .xf-volumeTotal,
+#xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-volumePop .xf-volumeTotal .xf-volumeCur {
+width: 5px;
+border-radius: var(--playerRadius-1);
+}
+#xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-volumePop .xf-volumeTotal {
+height: 100%;
+background-color: var(--playerColor-4);
+position: relative;
+cursor: pointer;
+}
+#xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-volumePop .xf-volumeTotal .xf-volumeCur {
+position: absolute;
+bottom: 0;
+left: 0;
+background-color: var(--playerColor-6);
 }
 #xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-progressBar .xf-totalAudioProgress,
 #xf-MusicPlayer .xf-MusicPlayer-Main .xf-insideSong .xf-musicControl .xf-bottomControl .xf-progressBar .xf-totalAudioProgress .xf-audioProgress {
