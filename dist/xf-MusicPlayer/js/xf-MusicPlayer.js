@@ -101,8 +101,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
         const xfCssOne = 'xfplayIcon.min.css' || 'xfplayIcon.css'
         const xfCssTow = 'xf-MusicPlayer.min.css' || 'xf-MusicPlayer.css'
-        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015c`
-        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015c`
+        let xfplayIconCSS = `${xfDomainName}/xf-MusicPlayer/icon/${xfCssOne}?v=20261015d`
+        let MusicPlayerCSS = `${xfDomainName}/xf-MusicPlayer/css/${xfCssTow}?v=20261015d`
 
         if (location.protocol === 'file:') {
             xfplayIconCSS = 'https://player.xfyun.club/js/xf-MusicPlayer/icon/xfplayIcon.min.css'
@@ -132,7 +132,7 @@ window.addEventListener('DOMContentLoaded', function () {
             mainBox.appendChild(ele)
         }
 
-        let musicStr = `<div class="xf-MusicPlayer-Main"><div class="xf-switchPlayer"><i class="iconfont icon-jiantou2"></i></div><div class="xf-insideSong"><div class="xf-songPicture"><img src="xf-MusicPlayer/images/playerLoad.gif"alt="加载中..."class="xf-musicPicture"><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i></div><div class="xf-musicControl"><div class="xf-topControl"><div class="xf-introduce"><h3 class="xf-songName"></h3><p class="xf-singer"></p></div><ul class="xf-playerControl"><li class="xf-previousSong"><i class="iconfont icon-shangyishou"></i></li><li class="xf-playbackControl"><i class="xf-pause iconfont icon-zantingtingzhi"style="display: none;"></i><i class="xf-playBack iconfont icon-bofang"style="display: block;"></i></li><li class="xf-nextSong"><i class="iconfont icon-xiayishou"></i></li></ul></div><ul class="xf-bottomControl"><li class="xf-audioFrequency"><i class="iconfont icon-shengyin-kai"></i></li><li class="xf-progressBar"><h5 class="xf-totalAudioProgress"><p class="xf-audioProgress"style="width: 0;"></p></h5></li><li class="xf-playlistBtn"><i class="iconfont icon-gedan"></i></li></ul></div></div><div class="xf-outsideSongList"><ul class="xf-listOfSongs"></ul></div></div>`
+        let musicStr = `<div class="xf-MusicPlayer-Main"><div class="xf-switchPlayer"><i class="iconfont icon-jiantou2"></i></div><div class="xf-insideSong"><div class="xf-songPicture"><img src="xf-MusicPlayer/images/playerLoad.gif"alt="加载中..."class="xf-musicPicture"><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i><i class="xf-musicalNote iconfont icon-yinle"></i></div><div class="xf-musicControl"><div class="xf-topControl"><div class="xf-introduce"><h3 class="xf-songName"></h3><p class="xf-singer"></p></div><ul class="xf-playerControl"><li class="xf-previousSong"><i class="iconfont icon-shangyishou"></i></li><li class="xf-playbackControl"><i class="xf-pause iconfont icon-zantingtingzhi"style="display: none;"></i><i class="xf-playBack iconfont icon-bofang"style="display: block;"></i></li><li class="xf-nextSong"><i class="iconfont icon-xiayishou"></i></li></ul></div><ul class="xf-bottomControl"><li class="xf-audioFrequency"><i class="iconfont icon-shengyin-kai"></i></li><li class="xf-progressBar"><h5 class="xf-totalAudioProgress"><p class="xf-audioProgress"style="width: 0;"></p></h5></li><li class="xf-repeatBtn"><span class="xf-repeatIcon">&#8635;</span></li><li class="xf-playlistBtn"><i class="iconfont icon-gedan"></i></li></ul></div></div><div class="xf-outsideSongList"><ul class="xf-listOfSongs"></ul></div></div>`
 
         let lyricStr = `<div id="xf-lyric"><ul class="xf-AllLyric-box"></ul></div>`
         characterToElement(musicStr, MusicPlayer)
@@ -394,10 +394,12 @@ window.addEventListener('DOMContentLoaded', function () {
                 const volPop = document.createElement('div')
                 volPop.className = 'xf-volumePop'
                 volPop.style.display = 'none'
-                volPop.innerHTML = '<h5 class="xf-volumeTotal"><p class="xf-volumeCur" style="height: 80%;"></p></h5>'
+                volPop.innerHTML = '<p class="xf-volumeNum">80%</p><h5 class="xf-volumeTotal"><p class="xf-volumeCur" style="height: 80%;"></p><i class="xf-volumeKnob" style="bottom: 80%;"></i></h5><i class="xf-volumeIcon iconfont icon-shengyin-kai"></i>'
                 audioFrequency.appendChild(volPop)
 
                 const volCur = volPop.querySelector('.xf-volumeCur')
+                const volNum = volPop.querySelector('.xf-volumeNum')
+                const volKnob = volPop.querySelector('.xf-volumeKnob')
                 let isVolumeSliding = false
                 let curVolume = 0.8
                 xfMusicAudio.volume = curVolume
@@ -406,6 +408,8 @@ window.addEventListener('DOMContentLoaded', function () {
                     curVolume = Math.max(0, Math.min(1, vol))
                     xfMusicAudio.volume = curVolume
                     volCur.style.height = `${curVolume * 100}%`
+                    volKnob.style.bottom = `${curVolume * 100}%`
+                    volNum.textContent = `${Math.round(curVolume * 100)}%`
                     if (curVolume <= 0) {
                         xfMusicAudio.muted = true
                         audioFrequency.children[0].classList.add('icon-shengyin-guan')
@@ -418,7 +422,8 @@ window.addEventListener('DOMContentLoaded', function () {
                 }
 
                 const volumeFromEvent = e => {
-                    const rect = volPop.getBoundingClientRect()
+                    const track = volPop.querySelector('.xf-volumeTotal')
+                    const rect = track.getBoundingClientRect()
                     const y = e.clientY - rect.top
                     return 1 - y / rect.height
                 }
@@ -454,6 +459,17 @@ window.addEventListener('DOMContentLoaded', function () {
                     if (volPop.style.display !== 'none' && !audioFrequency.contains(event.target)) {
                         volPop.style.display = 'none'
                     }
+                })
+
+                // 循环模式：默认列表循环，点击切换单曲循环
+                let repeatOne = false
+                const repeatBtn = MusicPlayer.querySelector('.xf-repeatBtn')
+                repeatBtn.addEventListener('click', function (event) {
+                    event.stopPropagation()
+                    repeatOne = !repeatOne
+                    xfMusicAudio.loop = repeatOne
+                    repeatBtn.classList.toggle('xf-repeatActive', repeatOne)
+                    displayPopup(repeatOne ? '单曲循环' : '列表循环')
                 })
 
                 MusicPlayerMain.style.opacity = 0
@@ -609,6 +625,17 @@ window.addEventListener('DOMContentLoaded', function () {
                                             const lisEle = document.createElement('li')
                                             lisEle.classList.add('xf-ly')
                                             lisEle.textContent = lyric.text
+                                            lisEle.addEventListener('click', () => {
+                                                if (xfMusicAudio && xfMusicAudio.src) {
+                                                    xfMusicAudio.currentTime = lyric.time
+                                                    playMusic()
+                                                    addPlaying()
+                                                    const duration = xfMusicAudio.duration
+                                                    if (duration) {
+                                                        audioProgress.style.width = `${(lyric.time / duration) * 100}%`
+                                                    }
+                                                }
+                                            })
                                             xfAllLyri.appendChild(lisEle)
                                         })
 
