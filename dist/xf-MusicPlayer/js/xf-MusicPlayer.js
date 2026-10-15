@@ -275,9 +275,20 @@ window.addEventListener('DOMContentLoaded', function () {
             const detectionPlay = async () => {
                 await setTimeoutPromise(2000)
                 if (xfMusicAudio.paused) {
-                    console.warn('您的浏览器不支持自动播放音乐，请手动点击播放器继续欣赏歌曲吧~')
-                    removebePlaying()
-                    displayPopup('点击播放音乐')
+                    console.warn('您的浏览器限制了有声自动播放，尝试静音自动播放...')
+                    xfMusicAudio.muted = true
+                    try {
+                        await xfMusicAudio.play()
+                        audioFrequency.children[0].classList.add('icon-shengyin-guan')
+                        audioFrequency.children[0].classList.remove('icon-shengyin-kai')
+                        xfMusicAudio.volume = curVolume
+                        addPlaying()
+                        displayPopup('已自动播放（静音），点击喇叭开启声音')
+                    } catch (error) {
+                        console.warn('静音自动播放也被拦截，请手动点击播放器继续欣赏歌曲吧~')
+                        removebePlaying()
+                        displayPopup('点击播放音乐')
+                    }
                 } else {
                     displayPopup(`正在播放：${songName.textContent}`)
                     addPlaying()
