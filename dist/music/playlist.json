@@ -1,0 +1,74 @@
+[
+  {
+    "id": "1",
+    "name": "冷战",
+    "artistsname": "TizzyT/万妮达Vinida Weng",
+    "picurl": "music/cover/cover1.jpg",
+    "url": "music/song1.mp3",
+    "musicDuration": "03:43 "
+  },
+  {
+    "id": "2",
+    "name": "天亮以前说再见",
+    "artistsname": "徐化文（四熹丸子）",
+    "picurl": "music/cover/cover2.jpg",
+    "url": "music/song2.mp3",
+    "musicDuration": "03:53 "
+  },
+  {
+    "id": "3",
+    "name": "加油！",
+    "artistsname": "林俊杰/MC HotDog 热狗",
+    "picurl": "music/cover/cover3.jpg",
+    "url": "music/song3.mp3",
+    "musicDuration": "03:48 "
+  },
+  {
+    "id": "4",
+    "name": "最好的安排",
+    "artistsname": "曲婉婷",
+    "picurl": "music/cover/cover4.jpg",
+    "url": "music/song4.mp3",
+    "musicDuration": "04:11 "
+  },
+  {
+    "id": "5",
+    "name": "偏爱",
+    "artistsname": "烟(许佳豪)",
+    "picurl": "music/cover/cover5.jpg",
+    "url": "music/song5.mp3",
+    "musicDuration": "03:48 "
+  },
+  {
+    "id": "6",
+    "name": "背对背拥抱",
+    "artistsname": "林俊杰",
+    "picurl": "music/cover/cover6.jpg",
+    "url": "music/song6.mp3",
+    "musicDuration": "03:57 "
+  },
+  {
+    "id": "7",
+    "name": "在你的身边",
+    "artistsname": "盛哲",
+    "picurl": "music/cover/cover7.jpg",
+    "url": "music/song7.mp3",
+    "musicDuration": "04:22 "
+  },
+  {
+    "id": "8",
+    "name": "富士山下",
+    "artistsname": "陈奕迅",
+    "picurl": "music/cover/cover8.jpg",
+    "url": "music/song8.mp3",
+    "musicDuration": "04:19 "
+  },
+  {
+    "id": "9",
+    "name": "爱情转移",
+    "artistsname": "陈奕迅",
+    "picurl": "music/cover/cover9.jpg",
+    "url": "music/song9.mp3",
+    "musicDuration": "04:20 "
+  }
+]
