@@ -1,0 +1,8 @@
+﻿# Cloudflare/本地临时文件
+.wrangler/
+.cf-check/
+# 部署压缩包（可重新生成）
+*.zip
+# 系统文件
+Thumbs.db
+.DS_Store
