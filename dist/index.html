@@ -110,6 +110,20 @@
         
         .layer-animate-out { animation: bgFadeOutGlitch 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards !important; }
         .layer-animate-in { animation: bgFadeInElastic 0.9s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards !important; }
+
+        /* ========== 移动端背景柔和化：压暗 + 轻微模糊，降低背景杂乱感 ========== */
+        @media (max-width: 768px) {
+            .bg-layer {
+                filter: blur(1.5px) brightness(0.82);
+            }
+            .bg-layer::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 2;
+                background: rgba(0, 0, 0, 0.38);
+            }
+        }
         
         /* ========== Banner 区域 - 修复图片溢出问题 ========== */
         .header {
