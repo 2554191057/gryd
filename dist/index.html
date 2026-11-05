@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="instap">
     <link rel="icon" href="photos/avatar.png">
     <title>庆庆纸引导页</title>
     <link href="assets/m.css" rel="stylesheet">
@@ -56,10 +55,6 @@
             text-decoration:none;
             cursor:pointer
         }
-        .web_notice {
-            display: none;
-        }
-        
         /* ========== 页面背景 - 双图层系统 ========== */
         .bg-stage {
             position: fixed;
@@ -520,13 +515,6 @@
         </div>
     </div>
     
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <img id="modalImage" src="" alt="Image" style="width:100%">
-        </div>
-    </div>
-    
     <!-- 微信二维码弹窗 -->
     <div id="wechatModal" class="modal">
         <div class="modal-content" style="max-width:340px;text-align:center;padding:24px 20px;">
@@ -568,10 +556,6 @@
             });
         });
         
-        function showModal(imageSrc) { 
-            $("#modalImage").attr("src", imageSrc); 
-            $("#myModal").css("display", "flex"); 
-        }
         function showWechat() { 
             $("#wechatModal").css("display", "flex"); 
         }
@@ -619,15 +603,6 @@
         function copyQQId() {
             var id = document.getElementById("qqIdText").innerText;
             function done() { alert("QQ号已复制：" + id); }
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(id).then(done).catch(function() { fallbackCopy(id); done(); });
-            } else {
-                fallbackCopy(id); done();
-            }
-        }
-        function copyWechatId() {
-            var id = document.getElementById("wechatIdText").innerText;
-            function done() { alert("微信号已复制：" + id); }
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(id).then(done).catch(function() { fallbackCopy(id); done(); });
             } else {
