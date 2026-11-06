@@ -846,51 +846,102 @@
     <xf-music-player language="zh" mode="cloud" api-url="https://qqzttkx.eu.cc/api/playlist" is-auto-popup="true" autoplay="true" theme="xf-orange-theme" play-mode="order" bottom="2em" memory-key="xf-music-player" remember-playback="true"></xf-music-player>
     <script src="https://player.xfyun.club/js/music-player/music-player.min.js"></script>
 
-    <!-- 移动端播放守护：音频被浏览器/系统打断后，短时间内回到页面自动续播 -->
+    <!-- 移动端播放守护：音频被浏览器/系统打断（小米等国产浏览器常见）后自动重连播放 -->
     <script>
         (function () {
-            if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
+            if (!/Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '')) return;
 
             var lastPlayingAt = 0;      // 最近一次确认「正在播放」的时间
-            var lastRecoverAt = 0;      // 最近一次自动续播的时间
-            var RECOVER_WINDOW = 30000; // 中断后 30 秒内回到页面才自动续播
+            var lastRecoverAt = 0;      // 最近一次自动重连的时间
+            var userTouchAt = 0;        // 用户最近一次亲自点播放器的时间
+            var fixStartAt = 0;         // 本轮自动重连的计时起点
+            var fixCount = 0;           // 本轮已自动重连的次数
+            var RECOVER_WINDOW = 30000; // 切后台 30 秒内回来才自动续播
+            var MAX_FIX = 4;            // 2 分钟内最多自动重连 4 次，防止死循环
+            var FIX_WINDOW = 120000;
 
+            function getHost() { return document.querySelector('xf-music-player'); }
             function getBox() {
-                var p = document.querySelector('xf-music-player');
-                return p && p.shadowRoot ? p.shadowRoot.querySelector('music-player-box') : null;
+                var p = getHost();
+                try { return p && p.shadowRoot ? p.shadowRoot.querySelector('music-player-box') : null; }
+                catch (e) { return null; }
             }
             function isPlaying() {
                 var b = getBox();
-                if (!b || !b.shadowRoot) return false;
-                var ic = b.shadowRoot.querySelector('.play-control-btn .icon-zantingtingzhi');
-                return !!(ic && ic.className.indexOf('show') >= 0);
+                try {
+                    if (!b || !b.shadowRoot) return false;
+                    var ic = b.shadowRoot.querySelector('.play-control-btn .icon-zantingtingzhi');
+                    return !!(ic && ic.className && ic.className.indexOf('show') >= 0);
+                } catch (e) { return false; }
             }
             function pressPlay() {
                 var b = getBox();
-                if (!b || !b.shadowRoot) return false;
-                var btn = b.shadowRoot.querySelector('.play-control-btn');
-                if (!btn) return false;
-                btn.click();
-                return true;
+                try {
+                    if (!b || !b.shadowRoot) return false;
+                    var btn = b.shadowRoot.querySelector('.play-control-btn');
+                    if (!btn) return false;
+                    btn.click();
+                    return true;
+                } catch (e) { return false; }
+            }
+            // 屏幕上是否真的弹着「浏览器异常结束了音频…」（隐藏的模板文案不算）
+            function hasAbnormalNotice() {
+                function scan(root, depth) {
+                    if (!root || depth > 3) return false;
+                    var els = root.querySelectorAll('*');
+                    for (var i = 0; i < els.length; i++) {
+                        var el = els[i];
+                        if (el.shadowRoot && scan(el.shadowRoot, depth + 1)) return true;
+                        if (el.children.length) continue;
+                        if ((el.textContent || '').indexOf('异常结束') < 0) continue;
+                        var st;
+                        try { st = getComputedStyle(el); } catch (e) { continue; }
+                        if (st.display === 'none' || st.visibility === 'hidden') continue;
+                        if (parseFloat(st.opacity || '1') < 0.2) continue;
+                        var r = el.getBoundingClientRect();
+                        if (r.width > 0 && r.height > 0) return true;
+                    }
+                    return false;
+                }
+                try {
+                    var p = getHost();
+                    if (p && p.shadowRoot && scan(p.shadowRoot, 0)) return true;
+                    return scan(document.body, 0);
+                } catch (e) { return false; }
             }
 
-            // 用户自己点了播放/暂停，就清空续播意图，不替用户做决定
-            document.addEventListener('click', function (e) {
-                var path = e.composedPath ? e.composedPath() : [];
-                for (var i = 0; i < path.length; i++) {
-                    var el = path[i];
-                    if (el && el.classList && el.classList.contains('play-control-btn')) {
-                        lastPlayingAt = 0;
-                        break;
+            // 用户自己在点播放器，就别替他做决定
+            document.addEventListener('pointerdown', function (e) {
+                try {
+                    var path = e.composedPath ? e.composedPath() : [];
+                    for (var i = 0; i < path.length; i++) {
+                        var el = path[i];
+                        if (el && el.classList && el.classList.contains('play-control-btn')) {
+                            userTouchAt = Date.now();
+                            return;
+                        }
                     }
-                }
+                } catch (err) {}
             }, true);
 
             setInterval(function () {
+                if (isPlaying()) { lastPlayingAt = Date.now(); return; }
                 if (document.hidden) return;
-                if (isPlaying()) lastPlayingAt = Date.now();
-            }, 700);
+                if (Date.now() - userTouchAt < 6000) return;      // 用户刚动过，先别插手
+                if (!hasAbnormalNotice()) return;                 // 没出现异常提示，不擅自播放
+                if (lastRecoverAt && Date.now() - lastRecoverAt < 6000) return;
+                var now = Date.now();
+                if (!fixStartAt || now - fixStartAt > FIX_WINDOW) { fixStartAt = now; fixCount = 0; }
+                if (fixCount >= MAX_FIX) return;
+                fixCount++;
+                lastRecoverAt = now;
+                setTimeout(function () {
+                    if (!isPlaying()) pressPlay();
+                    setTimeout(function () { if (!isPlaying()) pressPlay(); }, 1500);
+                }, 600);
+            }, 800);
 
+            // 切后台再回来：30 秒内的中断也顺手接上
             document.addEventListener('visibilitychange', function () {
                 if (document.hidden) {
                     if (isPlaying()) lastPlayingAt = Date.now();
@@ -898,13 +949,12 @@
                 }
                 if (!lastPlayingAt || Date.now() - lastPlayingAt > RECOVER_WINDOW) return;
                 if (isPlaying()) return;
-                if (lastRecoverAt && Date.now() - lastRecoverAt < 5000) return;
+                if (Date.now() - userTouchAt < 6000) return;
+                if (lastRecoverAt && Date.now() - lastRecoverAt < 6000) return;
                 lastRecoverAt = Date.now();
                 setTimeout(function () {
                     if (!isPlaying()) pressPlay();
-                    setTimeout(function () {
-                        if (!isPlaying()) pressPlay();
-                    }, 1800);
+                    setTimeout(function () { if (!isPlaying()) pressPlay(); }, 1800);
                 }, 800);
             });
         })();
